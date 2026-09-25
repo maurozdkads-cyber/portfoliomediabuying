@@ -1,0 +1,924 @@
+<title>Mauro Zahradnicek — Scale Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --ink:#0A0D12;--panel:#11161E;--panel-2:#161D27;--line:#222B37;--line-2:#2E3947;
+  --text:#DCE3EC;--dim:#8793A4;--faint:#5A6676;
+  --profit:#3FD68F;--loss:#FF5A4E;--amber:#F5B83D;
+  --cobalt:#2536F5;--cobalt-deep:#1826C4;--paper:#F4F3FF;--paper-dim:#C3C8FF;
+  --violet:#8B5CF6;--sky:#38BDF8;
+  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+  --gut:clamp(16px,4vw,56px);--max:1180px;
+}
+*{box-sizing:border-box}
+body{background:var(--ink);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+[data-lang="en"] [data-es],[data-lang="es"] [data-en]{display:none!important}
+a{color:inherit}
+img{max-width:100%;display:block}
+.wrap{max-width:var(--max);margin-inline:auto;padding-inline:var(--gut)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.02em}
+p{margin:0}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:2px}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--ink) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:16px;min-height:56px;flex-wrap:wrap}
+.brand{font-family:var(--mono);font-size:13px;letter-spacing:.04em;color:var(--dim)}
+.brand b{color:var(--text);font-weight:500}
+.badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--profit);border:1px solid color-mix(in srgb,var(--profit) 40%,transparent);padding:4px 10px;border-radius:999px}
+.badge i{width:7px;height:7px;border-radius:50%;background:var(--profit);box-shadow:0 0 0 0 var(--profit);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--profit) 60%,transparent)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.top .spacer{flex:1}
+.lang{display:inline-flex;border:1px solid var(--line-2);border-radius:6px;overflow:hidden}
+.lang button{all:unset;cursor:pointer;font-family:var(--mono);font-size:12px;padding:6px 10px;color:var(--dim)}
+.lang button[aria-pressed="true"]{background:var(--text);color:var(--ink)}
+
+/* hero */
+.hero{border-bottom:1px solid var(--line);background:
+  radial-gradient(60% 70% at 8% 0%,rgba(63,214,143,.10),transparent 70%),
+  radial-gradient(50% 60% at 95% 30%,rgba(37,54,245,.16),transparent 70%),
+  linear-gradient(180deg,#0C1017 0%,var(--ink) 100%)}
+.hero .hero-main{display:grid;grid-template-columns:1.35fr .9fr;gap:clamp(24px,5vw,64px);padding-block:clamp(40px,7vw,88px) clamp(32px,5vw,56px);align-items:end}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber)}
+.hero h1{font-size:clamp(40px,6.4vw,84px);line-height:.96;font-weight:800;margin-top:18px}
+.hero h1 em{font-style:normal;color:var(--profit)}
+.hero .lede{margin-top:22px;font-size:clamp(16px,1.6vw,19px);color:var(--dim);max-width:58ch}
+.hero .lede strong{color:var(--text);font-weight:500}
+.role{margin-top:22px;font-family:var(--mono);font-size:13px;color:var(--text);display:flex;gap:10px 18px;flex-wrap:wrap}
+.role b{font-weight:500}.role>span{color:var(--dim)}
+.ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:14px;padding:13px 18px;border-radius:6px;transition:transform .15s,background .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--profit);color:#04140C;font-weight:700}
+.btn-ghost{border:1px solid var(--line-2);color:var(--text)}
+.btn-ghost:hover{background:var(--panel)}
+.photo{position:relative;border:1px solid var(--line-2);border-radius:4px;overflow:hidden;aspect-ratio:3/4;max-width:100%;background:var(--panel)}
+.photo img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.05)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding-bottom:28px}
+.stat{background:rgba(17,22,30,.72);border:1px solid var(--line);border-radius:8px;padding:20px 20px 18px;display:flex;flex-direction:column;min-width:0}
+.stat .n{font-family:var(--mono);font-size:clamp(22px,2.3vw,32px);font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.1;overflow-wrap:normal}
+.stat .n.g{color:var(--profit)}
+.stat .l{font-size:14px;color:var(--dim);margin-top:10px;line-height:1.45}
+.stat .src{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase;margin-top:auto;padding-top:14px}
+.career{font-family:var(--mono);font-size:12.5px;color:var(--dim);padding-block:14px;border-top:1px solid var(--line);display:flex;gap:8px 22px;flex-wrap:wrap}
+.career b{color:var(--text);font-weight:500}
+
+/* sections */
+section{padding-block:clamp(56px,8vw,104px)}
+.sec-head{display:grid;grid-template-columns:200px 1fr;gap:24px;margin-bottom:40px}
+.sec-head .tag{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding-top:10px}
+.sec-head h2{font-size:clamp(30px,4vw,52px);line-height:1.02;font-weight:800}
+.sec-head p{margin-top:14px;color:var(--dim);max-width:62ch;font-size:17px}
+.term{border-top:1px solid var(--line)}
+.studio{background:var(--cobalt);color:var(--paper)}
+.studio .sec-head .tag{color:var(--paper-dim)}
+.studio .sec-head p{color:var(--paper-dim)}
+.studio h2{font-size:clamp(36px,5.4vw,72px)!important;letter-spacing:-.03em}
+
+/* chart */
+.chart-box{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px 20px 12px}
+.chart-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--dim);margin-bottom:8px}
+.chart-top b{color:var(--text);font-weight:500}
+.legend{display:flex;gap:14px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.chart-scroll{overflow-x:auto}
+#chart{width:100%;min-width:640px;height:auto;display:block}
+.phases{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:20px}
+.phase{background:var(--ink);padding:16px 14px}
+.phase .d{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.04em}
+.phase .v{font-family:var(--mono);font-size:20px;margin-top:6px}
+.phase .t{font-size:13.5px;color:var(--dim);margin-top:6px;line-height:1.45}
+.phase.loss .v{color:var(--loss)}.phase.peak .v{color:var(--profit)}
+.note{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-top:14px;max-width:90ch}
+
+/* evidence */
+.xcheck{display:grid;grid-template-columns:1fr auto 1fr;gap:0;border:1px solid var(--line-2);border-radius:6px;overflow:hidden;background:var(--panel)}
+.xcol{padding:22px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.xcol .h{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.xcol .big{font-family:var(--mono);font-size:clamp(26px,3vw,36px)}
+.xcol .sub{font-size:13.5px;color:var(--dim)}
+.xmid{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:22px 18px;border-inline:1px solid var(--line);background:var(--ink);text-align:center;min-width:190px}
+.xmid .op{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.xmid .res{font-family:var(--mono);font-size:30px;color:var(--profit)}
+.xmid .rows{font-family:var(--mono);font-size:12.5px;display:grid;grid-template-columns:auto auto;gap:4px 12px;margin-top:8px;text-align:left}
+.xmid .rows span:nth-child(odd){color:var(--dim)}
+.shot{all:unset;cursor:zoom-in;display:block;border:1px solid var(--line-2);border-radius:4px;overflow:hidden;background:#000;position:relative}
+.shot img{width:100%;height:220px;object-fit:cover;object-position:top left;transition:transform .3s}
+.shot:hover img{transform:scale(1.02)}
+.shot::after{content:"⤢";position:absolute;right:8px;top:8px;font-size:13px;background:rgba(0,0,0,.7);color:#fff;padding:2px 7px;border-radius:3px;font-family:var(--mono)}
+.ev-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:16px}
+.ev{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.ev .date{font-family:var(--mono);font-size:11.5px;color:var(--amber);letter-spacing:.06em}
+.ev h3{font-family:var(--body);font-size:17px;font-weight:600;letter-spacing:0}
+.ev .kv{font-family:var(--mono);font-size:12.5px;display:grid;grid-template-columns:1fr auto;gap:4px 10px;border-top:1px dashed var(--line-2);padding-top:10px}
+.ev .kv span:nth-child(odd){color:var(--dim)}
+.ev .kv .g{color:var(--profit)}
+.ev .shot img{height:180px}
+.dtc-note{margin-top:28px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;border:1px solid color-mix(in srgb,var(--amber) 45%,transparent);border-radius:6px;padding:18px 20px;background:color-mix(in srgb,var(--amber) 6%,var(--ink))}
+.dtc-note .k{font-family:var(--mono);font-size:12px;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;padding-top:2px}
+.dtc-note p{color:var(--text);max-width:80ch;font-size:15px}
+
+/* framework (studio) */
+.loop{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:2px solid var(--paper)}
+.stage{all:unset;cursor:pointer;padding:18px 18px 22px 0;border-right:1px solid rgba(255,255,255,.25);display:flex;flex-direction:column;gap:8px;min-width:0}
+.stage+.stage{padding-left:18px}
+.stage:last-child{border-right:0}
+.stage .num{font-family:var(--mono);font-size:12px;color:var(--paper-dim)}
+.stage .nm{font-family:var(--display);font-size:clamp(24px,2.6vw,34px);font-weight:800;letter-spacing:-.02em;line-height:1}
+.stage .share{font-family:var(--mono);font-size:12px;color:var(--paper-dim)}
+.stage .bar{height:6px;background:rgba(255,255,255,.18);border-radius:3px;overflow:hidden}
+.stage .bar i{display:block;height:100%;background:var(--paper)}
+.stage[aria-selected="true"] .nm{color:#fff;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:6px}
+.stage[aria-selected="false"]{opacity:.62}
+.stage:hover{opacity:1}
+.stage-body{margin-top:28px;display:grid;grid-template-columns:1.1fr 1fr;gap:32px;align-items:start}
+.stage-body .big{font-family:var(--display);font-size:clamp(22px,2.4vw,30px);line-height:1.2;font-weight:600;letter-spacing:-.01em}
+.stage-body ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.stage-body li{padding-left:22px;position:relative;color:var(--paper);font-size:15.5px}
+.stage-body li::before{content:"→";position:absolute;left:0;color:var(--paper-dim);font-family:var(--mono)}
+.structure{margin-top:56px;display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center}
+.sbox{border:1.5px solid var(--paper);border-radius:6px;padding:18px}
+.sbox .h{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--paper-dim)}
+.sbox .t{font-family:var(--display);font-size:22px;font-weight:600;margin-top:6px}
+.sbox .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{font-family:var(--mono);font-size:11.5px;padding:4px 8px;border-radius:3px;background:rgba(255,255,255,.14)}
+.arrow{font-family:var(--mono);font-size:13px;color:var(--paper-dim);text-align:center}
+.arrow b{display:block;font-size:28px;color:var(--paper);font-weight:400}
+.metrics{margin-top:40px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid rgba(255,255,255,.3)}
+.metrics>div{padding:16px 18px 0 0}
+.metrics>div+div{padding-left:18px;border-left:1px solid rgba(255,255,255,.3)}
+.metrics .h{font-family:var(--mono);font-size:12px;color:var(--paper-dim);letter-spacing:.06em;text-transform:uppercase}
+.metrics .t{margin-top:6px;font-size:15px}
+
+/* creative anatomy */
+.offer{font-family:var(--display);font-size:clamp(34px,5.6vw,76px);line-height:.98;font-weight:800;letter-spacing:-.035em;max-width:16ch}
+.offer mark{background:var(--paper);color:var(--cobalt);padding:0 .12em;border-radius:4px}
+.offer-sub{margin-top:18px;color:var(--paper-dim);max-width:60ch;font-size:17px}
+.winner{margin-top:48px;display:grid;grid-template-columns:.9fr 1.1fr;gap:32px;align-items:start;border-top:1px solid rgba(255,255,255,.3);padding-top:28px}
+.winner .lab{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
+.winner h3{font-size:clamp(26px,3vw,38px);font-weight:800;margin-top:10px;line-height:1.05}
+.winner p{margin-top:12px;color:var(--paper);font-size:15.5px}
+.beats{display:grid;gap:0;counter-reset:b}
+.beat{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.2)}
+.beat .s{font-family:var(--mono);font-size:12px;color:var(--paper-dim);padding-top:3px}
+.beat .x{font-size:15px}
+.tree{margin-top:48px}
+.tree .lab{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--paper-dim);margin-bottom:14px}
+.tree-row{display:grid;grid-template-columns:200px 1fr;gap:16px;padding:14px 0;border-top:1px solid rgba(255,255,255,.22);align-items:center}
+.tree-row .k{font-family:var(--display);font-weight:600;font-size:20px}
+.tree-row .k small{display:block;font-family:var(--mono);font-size:11px;color:var(--paper-dim);font-weight:400;letter-spacing:.04em}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{font-size:14px;padding:6px 12px;border:1.5px solid rgba(255,255,255,.55);border-radius:999px}
+.pill.solid{background:var(--paper);color:var(--cobalt);border-color:var(--paper);font-weight:600}
+.formats{margin-top:48px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.fmt{background:var(--cobalt-deep);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.fmt .h{font-family:var(--display);font-size:20px;font-weight:600;line-height:1.1}
+.fmt p{font-size:14px;color:var(--paper-dim)}
+.qv{margin-top:56px;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:stretch}
+.qv .card{border:1.5px solid var(--paper);border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.qv .card.before{border-style:dashed;border-color:rgba(255,255,255,.5)}
+.qv .h{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--paper-dim)}
+.qv .n{font-family:var(--display);font-size:clamp(34px,4.4vw,56px);font-weight:800;line-height:1;letter-spacing:-.03em}
+.qv .n small{font-size:.4em;font-weight:600;letter-spacing:0}
+.qv p{font-size:15px;color:var(--paper)}
+.dots{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.dots i{width:12px;height:12px;border-radius:2px;background:rgba(255,255,255,.28)}
+.dots i.w{background:var(--amber)}
+
+/* incident */
+.incident{border:1px solid color-mix(in srgb,var(--loss) 45%,var(--line));border-radius:6px;overflow:hidden}
+.inc-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;padding:14px 18px;background:color-mix(in srgb,var(--loss) 10%,var(--ink));border-bottom:1px solid color-mix(in srgb,var(--loss) 35%,var(--line));font-family:var(--mono);font-size:12.5px}
+.sev{color:var(--loss);letter-spacing:.08em;text-transform:uppercase}
+.inc-body{display:grid;grid-template-columns:1fr 1.2fr}
+.impact{padding:22px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:18px}
+.impact .h{font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+.drop{display:grid;gap:10px}
+.drop .row{display:grid;grid-template-columns:120px 1fr 64px;gap:10px;align-items:center;font-family:var(--mono);font-size:12.5px}
+.drop .row span:first-child{color:var(--dim)}
+.drop .b{height:14px;border-radius:2px}
+.drop .v{text-align:right}
+.impact .huge{font-family:var(--mono);font-size:44px;color:var(--loss);line-height:1}
+.impact .huge2{font-family:var(--mono);font-size:44px;color:var(--profit);line-height:1}
+.pm{display:grid}
+.pm-step{display:grid;grid-template-columns:120px 1fr;gap:14px;padding:16px 22px;border-bottom:1px solid var(--line)}
+.pm-step:last-child{border-bottom:0}
+.pm-step .k{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);padding-top:3px}
+.pm-step p{font-size:15px}
+.pm-step p+p{margin-top:6px}
+.pm-step code{font-family:var(--mono);font-size:13px;color:var(--amber)}
+
+/* landing page */
+.lp-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:40px}
+.lp-node{border:1px solid var(--line-2);background:var(--panel);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:6px;position:relative}
+.lp-node+.lp-node{margin-left:28px}
+.lp-node+.lp-node::before{content:"";position:absolute;left:-28px;top:50%;width:28px;height:1px;background:var(--line-2)}
+.lp-node+.lp-node::after{content:"";position:absolute;left:-7px;top:calc(50% - 4px);border:4px solid transparent;border-left:6px solid var(--dim)}
+.lp-node .h{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.lp-node .t{font-family:var(--display);font-weight:600;font-size:20px;line-height:1.15}
+.lp-node .d{font-size:13.5px;color:var(--dim);line-height:1.45}
+.lp-node.hot{border-color:color-mix(in srgb,var(--profit) 55%,transparent);background:color-mix(in srgb,var(--profit) 7%,var(--panel))}
+.lp-node.hot .h{color:var(--profit)}
+.cro{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:start}
+.funnel{display:grid;gap:14px}
+.fbar{display:grid;grid-template-columns:90px 1fr 70px;gap:12px;align-items:center;font-family:var(--mono);font-size:13px}
+.fbar>span:first-child{color:var(--dim)}
+.fbar .track{height:28px;background:var(--panel);border:1px solid var(--line);border-radius:3px;position:relative;overflow:hidden}
+.fbar .fill{position:absolute;inset:0 auto 0 0;border-radius:2px}
+.fbar .v{text-align:right}
+.proof-line{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:12px;line-height:1.7}
+.proof-line b{color:var(--text);font-weight:500}
+.changes{display:grid;border-top:1px solid var(--line);padding-top:14px}
+.changes>div:not(.h){padding:14px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:28px 1fr;gap:10px;font-size:15px;color:var(--dim)}
+.changes>div:not(.h) b{color:var(--text);font-weight:600}
+.changes>div:not(.h)>span:first-child{font-family:var(--mono);color:var(--profit)}
+.margin-jump{margin-top:26px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;font-family:var(--mono)}
+.margin-jump .a{font-size:28px;color:var(--dim);text-decoration:line-through;text-decoration-color:var(--loss)}
+.margin-jump .b{font-size:40px;color:var(--profit)}
+.margin-jump .l{font-size:12.5px;color:var(--dim);flex-basis:100%;max-width:52ch}
+
+/* launcher */
+.launcher{background:linear-gradient(135deg,#140F2E 0%,#0E1030 55%,#0A0D12 100%);border-top:1px solid #2A2260}
+.launcher .sec-head .tag{color:#A99BFF}
+.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;align-items:stretch}
+.node{border:1px solid #3A2F7A;background:rgba(139,92,246,.07);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:8px;position:relative}
+.node+.node{margin-left:28px}
+.node+.node::before{content:"";position:absolute;left:-28px;top:50%;width:28px;height:1px;background:linear-gradient(90deg,var(--sky),var(--violet))}
+.node+.node::after{content:"";position:absolute;left:-7px;top:calc(50% - 4px);border:4px solid transparent;border-left:6px solid var(--violet)}
+.node .h{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#A99BFF}
+.node .t{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.15}
+.node .d{font-size:13px;color:var(--dim);line-height:1.45}
+.lgrid{margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+.config{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.config span{font-family:var(--mono);font-size:12px;padding:5px 9px;border:1px solid #3A2F7A;border-radius:3px;color:#CFC8FF}
+.timebar{margin-top:22px;display:grid;gap:10px}
+.timebar .row{display:grid;grid-template-columns:70px 1fr 90px;gap:12px;align-items:center;font-family:var(--mono);font-size:12.5px}
+.timebar .row span:first-child{color:var(--dim)}
+.timebar .b{height:16px;border-radius:2px}
+.lnum{display:flex;gap:28px;flex-wrap:wrap;margin-top:24px}
+.lnum div .n{font-family:var(--mono);font-size:36px;background:linear-gradient(90deg,var(--sky),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lnum div .l{font-size:13px;color:var(--dim)}
+.stackline{font-family:var(--mono);font-size:12.5px;color:var(--dim);margin-top:18px}
+.stackline b{color:var(--text);font-weight:500}
+.appshot{all:unset;cursor:zoom-in;display:block;border:1px solid #3A2F7A;border-radius:6px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(139,92,246,.5)}
+.appshot img{width:100%}
+
+/* DTC */
+.transfer{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border-top:1px solid var(--line)}
+.tr{padding:22px 22px 22px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr;gap:8px}
+.tr:nth-child(even){padding-left:22px;border-left:1px solid var(--line)}
+.tr .h{font-family:var(--display);font-size:22px;font-weight:600;line-height:1.15}
+.tr .from{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.tr .from b{color:var(--amber);font-weight:500}
+.tr p{color:var(--dim);font-size:15px}
+.cheet{margin-top:24px;font-size:15px;color:var(--dim);max-width:80ch}
+.cheet b{color:var(--text);font-weight:500}
+
+/* footer */
+.end{border-top:1px solid var(--line);background:var(--ink)}
+.end .end-main{padding-block:clamp(56px,8vw,96px);display:grid;grid-template-columns:1.3fr 1fr;gap:32px;align-items:end}
+.end h2{font-size:clamp(34px,5vw,64px);font-weight:800;line-height:1}
+.end h2 em{font-style:normal;color:var(--profit)}
+.contact{display:grid;gap:10px}
+.crow{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line-2);border-radius:6px;padding:12px 14px;font-family:var(--mono);font-size:14px;flex-wrap:wrap}
+.crow .k{font-size:11px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;display:block}
+.crow .val{user-select:all;word-break:break-all}
+.mini{all:unset;cursor:pointer;font-family:var(--mono);font-size:12px;padding:6px 10px;border:1px solid var(--line-2);border-radius:4px}
+.mini:hover{background:var(--panel)}
+.foot{font-family:var(--mono);font-size:11.5px;color:var(--faint);border-top:1px solid var(--line);padding-block:18px}
+
+/* dialogs */
+dialog{border:1px solid var(--line-2);background:var(--ink);color:var(--text);padding:0;border-radius:6px;max-width:min(1100px,calc(100vw - 32px));max-height:calc(100vh - 48px);width:100%}
+dialog::backdrop{background:rgba(3,5,8,.82);backdrop-filter:blur(4px)}
+.dlg-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--dim);position:sticky;top:0;background:var(--ink)}
+.dlg-body{overflow:auto;max-height:calc(100vh - 110px)}
+#lbImg{width:100%;height:auto}
+.cv{padding:28px clamp(18px,4vw,40px);max-width:820px;font-size:14.5px}
+.cv h3{font-family:var(--display);font-size:28px;font-weight:800}
+.cv .r{color:var(--dim);font-family:var(--mono);font-size:12.5px;margin-top:4px}
+.cv h4{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin:24px 0 8px}
+.cv ul{margin:6px 0 0;padding-left:18px;display:grid;gap:6px;color:var(--text)}
+.cv .job{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-weight:600;margin-top:10px}
+.cv .job span{font-family:var(--mono);font-weight:400;color:var(--dim);font-size:12.5px}
+.cv p{color:var(--dim)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--profit);color:#04140C;font-family:var(--mono);font-size:13px;padding:10px 14px;border-radius:6px;z-index:50}
+
+/* responsive */
+@media (max-width:980px){
+  .hero .hero-main{grid-template-columns:1fr}
+  .photo{max-width:360px;aspect-ratio:4/5}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sec-head{grid-template-columns:1fr;gap:8px}
+  .phases{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .xcheck{grid-template-columns:1fr}
+  .xmid{border-inline:0;border-block:1px solid var(--line)}
+  .ev-grid{grid-template-columns:1fr}
+  .loop{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stage:nth-child(2){border-right:0}
+  .stage:nth-child(3){padding-left:0}
+  .stage-body,.winner,.qv,.cro,.lgrid,.end .end-main{grid-template-columns:1fr}
+  .structure{grid-template-columns:1fr}
+  .arrow b{transform:rotate(90deg)}
+  .formats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stack-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rule{grid-template-columns:1fr}
+  .rule .then{border-left:0;border-top:1px solid var(--line)}
+  .econ{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .inc-body{grid-template-columns:1fr}
+  .impact{border-right:0;border-bottom:1px solid var(--line)}
+  .flow,.lp-flow,.cro{grid-template-columns:1fr}
+  .lp-node+.lp-node{margin-left:0;margin-top:22px}
+  .lp-node+.lp-node::before{left:50%;top:-22px;width:1px;height:22px}
+  .lp-node+.lp-node::after{left:calc(50% - 4px);top:-7px;border:4px solid transparent;border-top:6px solid var(--dim)}
+  .node+.node{margin-left:0;margin-top:22px}
+  .node+.node::before{left:50%;top:-22px;width:1px;height:22px}
+  .node+.node::after{left:calc(50% - 4px);top:-7px;border:4px solid transparent;border-top:6px solid var(--violet)}
+  .transfer{grid-template-columns:1fr}
+  .tr:nth-child(even){padding-left:0;border-left:0}
+  .metrics{grid-template-columns:1fr}
+  .metrics>div+div{padding-left:0;border-left:0;border-top:1px solid rgba(255,255,255,.3);margin-top:12px}
+}
+@media (max-width:560px){
+  .phases{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats{grid-template-columns:1fr}
+  .loop{grid-template-columns:1fr}
+  .stage,.stage+.stage{padding-left:0;border-right:0;border-bottom:1px solid rgba(255,255,255,.25)}
+  .formats{grid-template-columns:1fr}
+  .tree-row{grid-template-columns:1fr}
+  .pm-step{grid-template-columns:1fr;gap:4px}
+  .drop .row{grid-template-columns:96px 1fr 56px}
+  .top .brand{display:none}
+  .badge .bx{display:none}
+  .top .wrap{flex-wrap:nowrap}
+  .role{flex-direction:column;gap:4px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div id="app" data-lang="en">
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><b>Mauro Zahradnicek</b> / scale log</div>
+    <span class="badge"><i></i><span data-en>Open to work<span class="bx"> · Remote · Available now</span></span><span data-es>Disponible<span class="bx"> · Remoto · Inmediato</span></span></span>
+    <span class="spacer"></span>
+    <div class="lang" role="group" aria-label="Language">
+      <button id="lang-en" type="button" aria-pressed="true">EN</button>
+      <button id="lang-es" type="button" aria-pressed="false">ES</button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap hero-main">
+    <div>
+      <div class="eyebrow"><span data-en>Case study · LeadsIcon · Auto Insurance · Nov 2024 – Dec 2025</span><span data-es>Caso de estudio · LeadsIcon · Auto Insurance · nov 2024 – dic 2025</span></div>
+      <h1><span data-en>From $1K a day to <em>$53K in one day</em> — and the margin went up.</span><span data-es>De $1K por día a <em>$53K en un solo día</em>, y el margen subió.</span></h1>
+      <p class="lede"><span data-en>How I scaled a paid-social lead-gen account on Meta and TikTok with <strong>reconciled revenue, not platform-attributed ROAS</strong>: a research-first creative system, a landing page that converts 50% better, a policy wipe-out I recovered from in two weeks, and the tooling I built to move faster.</span><span data-es>Cómo escalé una cuenta de lead gen en Meta y TikTok con <strong>revenue reconciliado, no ROAS atribuido por la plataforma</strong>: un sistema creativo basado en research, una landing que convierte 50% mejor, una caída por política de la que me recuperé en dos semanas y las herramientas que construí para ir más rápido.</span></p>
+      <div class="role"><b>Mauro Zahradnicek</b><span>Performance Media Buyer &amp; Creative Strategist</span><span><span data-en>Meta · TikTok · Remote</span><span data-es>Meta · TikTok · Remoto</span></span></div>
+      <div class="ctas">
+        <button class="btn btn-primary" type="button" data-cv>↓ <span data-en>Download CV</span><span data-es>Descargar CV</span></button>
+        <a class="btn btn-ghost" href="#contact">✉ <span data-en>Email me</span><span data-es>Escribime</span></a>
+      </div>
+    </div>
+    <figure class="photo" style="margin:0">
+      <img src="{{photo}}" alt="Mauro Zahradnicek">
+    </figure>
+  </div>
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><div class="n">$53,179</div><div class="l"><span data-en>spent in a single day, at a 36% cash ROI</span><span data-es>gastados en un solo día, con 36% de ROI en cash</span></div><div class="src">RedTrack · 25.07.2025</div></div>
+      <div class="stat"><div class="n g">$4.48M</div><div class="l"><span data-en>reconciled revenue from one vertical on Meta</span><span data-es>de revenue reconciliado en una sola vertical en Meta</span></div><div class="src">LeadPier · Nov 24 – Dec 25</div></div>
+      <div class="stat"><div class="n g">+50%</div><div class="l"><span data-en>landing page conversion rate (9–10% → 14–15% of visitors became leads)</span><span data-es>de conversión en la landing page (del 9–10% al 14–15% de visitantes que se vuelven lead)</span></div><div class="src">LeadPier · click → lead</div></div>
+      <div class="stat"><div class="n g"><span data-en>2 weeks</span><span data-es>2 semanas</span></div><div class="l"><span data-en>from a −90% policy wipe-out back to $25K/day</span><span data-es>para volver a $25K/día después de una caída del −90% por política</span></div><div class="src">Sep 2025</div></div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="career"><span data-en>Career totals at LeadsIcon · all verticals · Sep 24 – Jun 26:</span><span data-es>Totales en LeadsIcon · todas las verticales · sep 24 – jun 26:</span> <b>$5.5M</b> <span data-en>ad spend</span><span data-es>de gasto</span> · <b>$6.4M</b> revenue · <b>~$900K</b> <span data-en>net profit</span><span data-es>de profit neto</span> · <b>12</b> <span data-en>ad accounts at once</span><span data-es>cuentas simultáneas</span></div>
+  </div>
+</div>
+
+<!-- SCALE CURVE -->
+<section class="term" id="curve">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag"><span data-en>01 · Trajectory</span><span data-es>01 · Trayectoria</span></div>
+      <div>
+        <h2><span data-en>Thirteen months, one account, five phases.</span><span data-es>Trece meses, una cuenta, cinco fases.</span></h2>
+        <p><span data-en>I took over the Auto Insurance account in November 2024 at $1–2K a day on Meta only. This is the ceiling of daily spend in each phase, with the days that have screenshot evidence marked.</span><span data-es>Tomé la cuenta de Auto Insurance en noviembre de 2024 a $1–2K por día, solo en Meta. Este es el techo de gasto diario en cada fase, con los días que tienen captura marcados.</span></p>
+      </div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-top">
+        <div><b data-en>Peak daily spend by phase</b><b data-es>Techo de gasto diario por fase</b> · USD / <span data-en>day</span><span data-es>día</span></div>
+        <div class="legend">
+          <span><i style="background:var(--profit)"></i><span data-en>ceiling</span><span data-es>techo</span></span>
+          <span><i style="background:var(--loss)"></i><span data-en>policy drop</span><span data-es>caída</span></span>
+          <span><i style="background:var(--amber);border-radius:50%"></i><span data-en>screenshot evidence</span><span data-es>con captura</span></span>
+        </div>
+      </div>
+      <div class="chart-scroll"><svg id="chart" viewBox="0 0 1000 380" role="img" aria-label="Peak daily spend by phase, November 2024 to December 2025"></svg></div>
+    </div>
+    <div class="phases">
+      <div class="phase"><div class="d">NOV 24</div><div class="v">$1–2K</div><div class="t"><span data-en>Take over. Meta only.</span><span data-es>Tomo la cuenta. Solo Meta.</span></div></div>
+      <div class="phase"><div class="d">DEC 24</div><div class="v">$5K</div><div class="t"><span data-en>First creative system in place.</span><span data-es>Primer sistema creativo armado.</span></div></div>
+      <div class="phase"><div class="d">JAN – MAY 25</div><div class="v">$20–25K</div><div class="t"><span data-en>Scale + TikTok added (~20% of volume).</span><span data-es>Escala + se suma TikTok (~20% del volumen).</span></div></div>
+      <div class="phase peak"><div class="d">JUN – AUG 25</div><div class="v">~$50K</div><div class="t"><span data-en>Peak. 3–4 winners carrying spend at once.</span><span data-es>Pico. 3–4 ganadores sosteniendo el gasto.</span></div></div>
+      <div class="phase loss"><div class="d">SEP 25</div><div class="v">$5K</div><div class="t"><span data-en>Policy change wipes 3 accounts.</span><span data-es>Un cambio de política tira 3 cuentas.</span></div></div>
+      <div class="phase"><div class="d">MID-SEP – DEC 25</div><div class="v">$25K</div><div class="t"><span data-en>Rebuilt and held to year-end.</span><span data-es>Reconstruida y sostenida hasta fin de año.</span></div></div>
+    </div>
+    <p class="note"><span data-en>Ceilings are the peak daily spend reached in each phase, not monthly averages. The ~$50K/day phase was driven by peak days like 25 Jul; daily averages ran lower. Period totals are in the evidence below.</span><span data-es>Los techos son el gasto diario máximo alcanzado en cada fase, no promedios mensuales. La fase de ~$50K/día la marcaron días pico como el 25/07; los promedios diarios fueron menores. Los totales por período están en la evidencia de abajo.</span></p>
+  </div>
+</section>
+
+<!-- EVIDENCE -->
+<section class="term" id="evidence">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag"><span data-en>02 · Evidence</span><span data-es>02 · Evidencia</span></div>
+      <div>
+        <h2><span data-en>Two independent sources, same period, same account.</span><span data-es>Dos fuentes independientes, mismo período, misma cuenta.</span></h2>
+        <p><span data-en>Spend comes from Meta. Revenue comes from LeadPier, the company's internal payout dashboard: what the lead buyer actually paid, not a pixel's estimate.</span><span data-es>El gasto viene de Meta. El revenue viene de LeadPier, el dashboard interno de payouts de la empresa: lo que el comprador del lead pagó de verdad, no una estimación del pixel.</span></p>
+      </div>
+    </div>
+
+    <div class="xcheck">
+      <div class="xcol">
+        <div class="h">Meta Ads · <span data-en>spend</span><span data-es>gasto</span> · Nov 24 – Apr 25</div>
+        <div class="big">$1,238,948</div>
+        <button class="shot" type="button" data-lb="meta_spend" data-cap-en="Meta Ads Manager: total spent $1,238,948.38, Nov 2024 – Apr 2025 (cropped from a personal Instagram story)." data-cap-es="Meta Ads Manager: total gastado $1,238,948.38, nov 2024 – abr 2025 (recorte de una historia personal de Instagram)."><img src="{{meta_spend}}" alt="Meta Ads total spent $1,238,948.38" style="object-position:center bottom"></button>
+      </div>
+      <div class="xmid">
+        <div class="op">revenue − <span data-en>spend</span><span data-es>gasto</span></div>
+        <div class="res">+$468,380</div>
+        <div class="rows">
+          <span>ROI</span><span>37.8%</span>
+          <span>Cash ROAS</span><span>1.38x</span>
+          <span>Leads</span><span>145,537</span>
+          <span>CPA</span><span>$8.51</span>
+        </div>
+      </div>
+      <div class="xcol">
+        <div class="h">LeadPier · revenue · 11 Nov 24 – 30 Apr 25</div>
+        <div class="big" style="color:var(--profit)">$1,707,328</div>
+        <button class="shot" type="button" data-lb="lp_novapr" data-cap-en="LeadPier, filter BM5_1 (my Meta campaigns): 995,972 clicks · 145,537 leads (14.61% CVR) · $1,707,328.76 revenue. Creative names blurred." data-cap-es="LeadPier, filtro BM5_1 (mis campañas de Meta): 995,972 clicks · 145,537 leads (14.61% CVR) · $1,707,328.76 de revenue. Nombres de creativos difuminados."><img src="{{lp_novapr}}" alt="LeadPier revenue report Nov 2024 – Apr 2025"></button>
+      </div>
+    </div>
+
+    <div class="ev-grid">
+      <article class="ev">
+        <div class="date">25 JUL 2025 · <span data-en>ONE DAY</span><span data-es>UN DÍA</span></div>
+        <h3><span data-en>$53K spent in 24 hours, planned, not a spike</span><span data-es>$53K en 24 horas, planificado, no un pico casual</span></h3>
+        <button class="shot" type="button" data-lb="rt_53k" data-cap-en="RedTrack, ad-group view, 25 Jul 2025: profit $19,146.15 · cost $53,179.55 · total revenue $72,325.70." data-cap-es="RedTrack, vista por ad group, 25/07/2025: profit $19,146.15 · costo $53,179.55 · revenue total $72,325.70."><img src="{{rt_53k}}" alt="RedTrack daily report"></button>
+        <div class="kv"><span>cost</span><span>$53,179.55</span><span>revenue</span><span>$72,325.70</span><span>profit</span><span class="g">$19,146.15</span><span>margin</span><span>26.5%</span></div>
+      </article>
+      <article class="ev">
+        <div class="date">~4 APR 2025 · <span data-en>7 DAYS · TIKTOK</span><span data-es>7 DÍAS · TIKTOK</span></div>
+        <h3><span data-en>A new channel at $19K/day in its first scale week</span><span data-es>Un canal nuevo a $19K/día en su primera semana de escala</span></h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button class="shot" type="button" data-lb="tt_135k" data-cap-en="TikTok Ads Manager, 7-day window: cost $135,014.18 · CPM $8.67 · CPC $1.12 · CTR 0.77%. Advertiser ID blurred." data-cap-es="TikTok Ads Manager, ventana de 7 días: costo $135,014.18 · CPM $8.67 · CPC $1.12 · CTR 0.77%. ID de anunciante difuminado."><img src="{{tt_135k}}" alt="TikTok Ads cost" style="height:150px"></button>
+          <button class="shot" type="button" data-lb="lp_168k" data-cap-en="LeadPier (TikTok sources), same week: $168,166.52 revenue. The taskbar clock reads 4/4/2025." data-cap-es="LeadPier (fuentes de TikTok), misma semana: $168,166.52 de revenue. El reloj de la barra de tareas marca 4/4/2025."><img src="{{lp_168k}}" alt="LeadPier weekly revenue" style="height:150px"></button>
+        </div>
+        <div class="kv"><span>cost</span><span>$135,014.18</span><span>revenue</span><span>$168,166.52</span><span>profit</span><span class="g">$33,152.34</span><span>CPM · CPC · CTR</span><span>$8.67 · $1.12 · 0.77%</span></div>
+      </article>
+      <article class="ev">
+        <div class="date">MAY – DEC 2025 · META</div>
+        <h3><span data-en>Held through the peak, the wipe-out and the rebuild</span><span data-es>Sostenido durante el pico, la caída y la reconstrucción</span></h3>
+        <button class="shot" type="button" data-lb="lp_maydec" data-cap-en="LeadPier, filter BM5_1, 1 May – 31 Dec 2025: 1,683,436 clicks · 260,493 leads (15.47% CVR) · $2,771,238.75 revenue. Creative names blurred." data-cap-es="LeadPier, filtro BM5_1, 1 may – 31 dic 2025: 1,683,436 clicks · 260,493 leads (15.47% CVR) · $2,771,238.75 de revenue. Nombres de creativos difuminados."><img src="{{lp_maydec}}" alt="LeadPier revenue May – Dec 2025"></button>
+        <div class="kv"><span>revenue</span><span class="g">$2,771,238.75</span><span>leads</span><span>260,493</span><span>CVR</span><span>15.47%</span><span>Nov 24 → Dec 25</span><span class="g">$4,478,567</span></div>
+      </article>
+    </div>
+
+    <div class="dtc-note">
+      <div class="k"><span data-en>For DTC readers</span><span data-es>Si venís de DTC</span></div>
+      <p><span data-en>A 1.38x ROAS looks thin next to e-commerce dashboards. It isn't the same number. This is <b>cash ROAS on reconciled revenue</b>: every dollar was paid by a lead buyer, with no attribution window, no view-through and no LTV to lean on. It is contribution margin after 100% of media cost, from the first dollar. That's the discipline I bring to a DTC P&amp;L.</span><span data-es>Un ROAS de 1.38x parece bajo al lado de un dashboard de e-commerce, pero no es el mismo número. Es <b>ROAS en cash sobre revenue reconciliado</b>: cada dólar lo pagó un comprador de leads, sin ventana de atribución, sin view-through y sin LTV que compense. Es margen de contribución después del 100% del costo de medios, desde el primer dólar. Esa es la disciplina que llevo a un P&amp;L de DTC.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM (studio) -->
+<section class="studio" id="system">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag"><span data-en>03 · The system</span><span data-es>03 · El sistema</span></div>
+      <div>
+        <h2><span data-en>Research first. Spend last.</span><span data-es>Primero research. Después la plata.</span></h2>
+        <p><span data-en>Before a cent goes live, everything has to be in the right place. Four phases, run as a weekly loop, so every test answers a question and the next one builds on it, brick by brick.</span><span data-es>Antes de gastar un centavo, todo tiene que estar en su lugar. Cuatro fases que corren como un loop semanal, para que cada test responda una pregunta y el siguiente se apoye en ella, ladrillo por ladrillo.</span></p>
+      </div>
+    </div>
+
+    <div class="loop" role="tablist" aria-label="Framework phases">
+      <button class="stage" role="tab" id="st-0" aria-selected="true" data-i="0"><span class="num">01</span><span class="nm">Research</span><span class="share"><span data-en>~80% of my time</span><span data-es>~80% de mi tiempo</span></span><span class="bar"><i style="width:80%"></i></span></button>
+      <button class="stage" role="tab" id="st-1" aria-selected="false" data-i="1"><span class="num">02</span><span class="nm">Ideation</span><span class="share"><span data-en>hypothesis → plan</span><span data-es>hipótesis → plan</span></span><span class="bar"><i style="width:10%"></i></span></button>
+      <button class="stage" role="tab" id="st-2" aria-selected="false" data-i="2"><span class="num">03</span><span class="nm">Production</span><span class="share"><span data-en>launch</span><span data-es>lanzamiento</span></span><span class="bar"><i style="width:5%"></i></span></button>
+      <button class="stage" role="tab" id="st-3" aria-selected="false" data-i="3"><span class="num">04</span><span class="nm">Iteration</span><span class="share"><span data-en>close the loop</span><span data-es>cerrar el loop</span></span><span class="bar"><i style="width:5%"></i></span></button>
+    </div>
+    <div class="stage-body" id="stageBody" role="tabpanel" aria-live="polite"></div>
+
+    <div class="structure">
+      <div class="sbox">
+        <div class="h"><span data-en>Testing campaigns</span><span data-es>Campañas de testing</span></div>
+        <div class="t"><span data-en>One per avatar</span><span data-es>Una por avatar</span></div>
+        <div class="chips"><span class="chip">ABO</span><span class="chip"><span data-en>1 ad set per creative</span><span data-es>1 ad set por creativo</span></span><span class="chip"><span data-en>Cost cap / Bid cap for large creative batches</span><span data-es>Cost cap / Bid cap con muchos creativos</span></span><span class="chip"><span data-en>kill at 3–4× target CPA</span><span data-es>kill a 3–4× el CPA objetivo</span></span></div>
+      </div>
+      <div class="arrow"><b>→</b><span data-en>winners graduate</span><span data-es>los ganadores pasan</span></div>
+      <div class="sbox">
+        <div class="h"><span data-en>Scaling campaigns</span><span data-es>Campañas de escala</span></div>
+        <div class="t"><span data-en>Separated by avatar</span><span data-es>Separadas por avatar</span></div>
+        <div class="chips"><span class="chip">CBO</span><span class="chip"><span data-en>horizontal duplication</span><span data-es>duplicación horizontal</span></span><span class="chip">Post ID</span><span class="chip">+20–25%/<span data-en>day</span><span data-es>día</span></span></div>
+      </div>
+    </div>
+    <p class="offer-sub" style="margin-top:16px"><span data-en>Keeping avatars in separate campaigns means the platform never blends signals, and I can read which person, and which angle for that person, is profitable right now.</span><span data-es>Separar avatares en campañas distintas hace que la plataforma no mezcle señales, y me deja leer qué persona, y qué ángulo para esa persona, es rentable hoy.</span></p>
+
+    <div class="metrics">
+      <div><div class="h"><span data-en>Business layer</span><span data-es>Capa de negocio</span></div><div class="t"><span data-en>CPA · ROAS · conversion rate: is it working?</span><span data-es>CPA · ROAS · conversion rate: ¿funciona?</span></div></div>
+      <div><div class="h"><span data-en>Creative layer</span><span data-es>Capa creativa</span></div><div class="t"><span data-en>CPM · CPC · CTR · hook rate · hold rate · frequency: this is where you see why a creative works, or why it doesn't.</span><span data-es>CPM · CPC · CTR · hook rate · hold rate · frecuencia: acá se ve por qué un creativo funciona o no.</span></div></div>
+      <div><div class="h"><span data-en>Post-click layer</span><span data-es>Capa post-click</span></div><div class="t"><span data-en>Step-by-step funnel CVR: where do people drop, and what's the fix?</span><span data-es>CVR del funnel paso a paso: ¿dónde se cae la gente y cómo se arregla?</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CREATIVE (studio) -->
+<section class="studio" id="creative" style="border-top:1px solid rgba(255,255,255,.18)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag"><span data-en>04 · Creative strategy</span><span data-es>04 · Estrategia creativa</span></div>
+      <div>
+        <p style="margin-top:0"><span data-en>Auto insurance is a mass audience: nearly everyone drives. The job was to find the people who already felt they were overpaying, and give them a reason to check in the next ten seconds.</span><span data-es>El seguro de auto es un público masivo: casi todo el mundo maneja. El trabajo era encontrar a quienes ya sentían que pagaban de más, y darles una razón para chequearlo en los próximos diez segundos.</span></p>
+      </div>
+    </div>
+    <div class="offer"><span data-en>“You're overpaying <mark>$2–3K</mark> a year for the same coverage.”</span><span data-es>“Estás pagando <mark>$2–3K</mark> de más por año por la misma cobertura.”</span></div>
+    <p class="offer-sub"><span data-en>The core promise every concept had to deliver on: annual savings on your car insurance with cheaper, equivalent coverage.</span><span data-es>La promesa central que cada concepto tenía que cumplir: ahorro anual en tu seguro de auto con una cobertura equivalente y más barata.</span></p>
+
+    <div class="winner">
+      <div>
+        <div class="lab"><span data-en>The format that carried $50K days</span><span data-es>El formato que sostuvo los días de $50K</span></div>
+        <h3><span data-en>POV street interviews</span><span data-es>Entrevistas POV en la calle</span></h3>
+        <p><span data-en>UGC shot like the Meta Ray-Ban street clips: walk up to a fast-food worker, ask what they pay for car insurance, lower it live through the page, film the reaction. It works because the viewer runs the same math on themselves before the ad is over.</span><span data-es>UGC grabado como los clips en la calle con Meta Ray-Ban: te acercás a un trabajador de comida rápida, le preguntás cuánto paga de seguro, se lo bajás en vivo con la página y grabás la reacción. Funciona porque el espectador hace la misma cuenta sobre sí mismo antes de que termine el anuncio.</span></p>
+      </div>
+      <div class="beats">
+        <div class="beat"><span class="s">0–3s</span><span class="x"><span data-en>Hook: a question to a real person. “How much do you pay for your car insurance?”</span><span data-es>Hook: una pregunta a una persona real. “¿Cuánto pagás de seguro del auto?”</span></span></div>
+        <div class="beat"><span class="s">3–15s</span><span class="x"><span data-en>Tension: a number the viewer recognizes as their own.</span><span data-es>Tensión: un número que el espectador reconoce como propio.</span></span></div>
+        <div class="beat"><span class="s">15–30s</span><span class="x"><span data-en>Proof: the quote drops on screen, live, through the same page they'll land on.</span><span data-es>Prueba: la cotización baja en pantalla, en vivo, en la misma página a la que van a llegar.</span></span></div>
+        <div class="beat"><span class="s">30s+</span><span class="x"><span data-en>Payoff: the reaction does the selling. Click to check yours.</span><span data-es>Cierre: la reacción vende sola. Clic para chequear el tuyo.</span></span></div>
+      </div>
+    </div>
+
+    <div class="tree">
+      <div class="lab"><span data-en>Once a format wins, iterate one variable at a time</span><span data-es>Cuando un formato gana, se itera una variable a la vez</span></div>
+      <div class="tree-row"><div class="k"><span data-en>Format</span><span data-es>Formato</span><small><span data-en>fixed</span><span data-es>fijo</span></small></div><div class="pills"><span class="pill solid"><span data-en>POV street interview</span><span data-es>Entrevista POV en la calle</span></span></div></div>
+      <div class="tree-row"><div class="k"><span data-en>Avatar</span><span data-es>Avatar</span><small><span data-en>who's on camera</span><span data-es>quién está en cámara</span></small></div><div class="pills">
+        <span class="pill"><span data-en>Fast-food workers</span><span data-es>Trabajadores de comida rápida</span></span><span class="pill"><span data-en>Black drivers</span><span data-es>Conductores afroamericanos</span></span><span class="pill"><span data-en>White drivers</span><span data-es>Conductores blancos</span></span><span class="pill"><span data-en>Older women</span><span data-es>Señoras mayores</span></span><span class="pill"><span data-en>Older men</span><span data-es>Señores mayores</span></span><span class="pill"><span data-en>New grads who need cash</span><span data-es>Recién graduados que necesitan plata</span></span><span class="pill"><span data-en>Construction workers</span><span data-es>Obreros de construcción</span></span><span class="pill"><span data-en>Other trades</span><span data-es>Otros oficios</span></span></div></div>
+      <div class="tree-row"><div class="k"><span data-en>Question</span><span data-es>Pregunta</span><small><span data-en>the hook</span><span data-es>el hook</span></small></div><div class="pills"><span class="pill"><span data-en>“How much do you pay?”</span><span data-es>“¿Cuánto pagás?”</span></span><span class="pill"><span data-en>“Do you have a dollar?”</span><span data-es>“¿Tenés un dólar?”</span></span><span class="pill"><span data-en>“Are you hungry?”</span><span data-es>“¿Tenés hambre?”</span></span><span class="pill"><span data-en>Street mini-games: 1 right answer = $50, 2 = lower your rate</span><span data-es>Minijuegos: 1 respuesta = $50, 2 = bajá tu cuota</span></span></div></div>
+      <div class="tree-row"><div class="k"><span data-en>Language</span><span data-es>Idioma</span><small><span data-en>after it wins</span><span data-es>después de ganar</span></small></div><div class="pills"><span class="pill solid">EN · 99% <span data-en>of spend</span><span data-es>del gasto</span></span><span class="pill"><span data-en>ES · winners re-versioned with AI and still converting</span><span data-es>ES · ganadores reversionados con IA que siguieron convirtiendo</span></span></div></div>
+    </div>
+
+    <div class="formats">
+      <div class="fmt"><div class="h"><span data-en>News segment</span><span data-es>Formato noticiero</span></div><p><span data-en>The angle presented as a breaking story: B-roll, voice-over and UGC cut-ins.</span><span data-es>El ángulo presentado como una nota de último momento: B-roll, voz en off y cortes UGC.</span></p></div>
+      <div class="fmt"><div class="h"><span data-en>Authority figures</span><span data-es>Figuras de autoridad</span></div><p><span data-en>Mechanics above all, plus officers and doctors: people you'd trust about a car or a bill.</span><span data-es>Mecánicos sobre todo, más policías y médicos: gente en la que confiarías para hablar de un auto o de una cuenta.</span></p></div>
+      <div class="fmt"><div class="h"><span data-en>The millionaire's tip</span><span data-es>El consejo del millonario</span></div><p><span data-en>A wealthy character framing the switch as the kind of move rich people make.</span><span data-es>Un personaje adinerado que presenta el cambio como el tipo de decisión que toma la gente rica.</span></p></div>
+      <div class="fmt"><div class="h"><span data-en>Seasonal</span><span data-es>Estacionales</span></div><p><span data-en>Holiday hooks (first-Christmas angles) layered on proven bodies.</span><span data-es>Hooks de fechas especiales (ángulos de primera Navidad) sobre cuerpos ya probados.</span></p></div>
+    </div>
+
+    <div class="qv">
+      <div class="card before">
+        <div class="h"><span data-en>What we did at first</span><span data-es>Lo que hacíamos al principio</span></div>
+        <div class="n">30–40 <small><span data-en>creatives / day</span><span data-es>creativos / día</span></small></div>
+        <p><span data-en>Across the whole buying team. Volume for volume's sake: many buyers competing for the same winners.</span><span data-es>Entre todo el equipo de buyers. Volumen por volumen: muchos buyers compitiendo por los mismos ganadores.</span></p>
+      </div>
+      <div class="card">
+        <div class="h"><span data-en>What actually wins</span><span data-es>Lo que realmente gana</span></div>
+        <div class="n">40–50 <small><span data-en>creatives / month</span><span data-es>creativos / mes</span></small></div>
+        <p><span data-en>Each one built on an explicit hypothesis, so even a loser tells you why. <b>15–20% become winners.</b></span><span data-es>Cada uno construido sobre una hipótesis explícita, así hasta el que pierde te dice por qué. <b>Entre 15 y 20% se vuelven ganadores.</b></span></p>
+        <div class="dots" aria-label="50 creatives, 9 winners"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CRO -->
+<section class="term" id="landing">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag"><span data-en>05 · Landing page</span><span data-es>05 · Landing page</span></div>
+      <div>
+        <h2><span data-en>Same ad spend, 50% more leads: fixing the landing page.</span><span data-es>Mismo gasto, 50% más leads: arreglando la landing page.</span></h2>
+        <p><span data-en>Scaling isn't only in Ads Manager. After the click, people land on a page with a multi-step form. I measured how many visitors dropped at each step, found the leaks and brought the fix. The CRO team polished and shipped it.</span><span data-es>Escalar no pasa solo en Ads Manager. Después del clic, la gente llega a una página con un formulario de varios pasos. Medí cuántos visitantes se caían en cada paso, encontré las fugas y llevé la solución. El equipo de CRO la pulió e implementó.</span></p>
+      </div>
+    </div>
+
+    <div class="lp-flow" aria-label="Ad to lead flow">
+      <div class="lp-node"><div class="h"><span data-en>Step 1</span><span data-es>Paso 1</span></div><div class="t"><span data-en>Ad click</span><span data-es>Clic en el anuncio</span></div><div class="d">Meta / TikTok</div></div>
+      <div class="lp-node hot"><div class="h"><span data-en>Step 2 · changed</span><span data-es>Paso 2 · modificado</span></div><div class="t">Landing page</div><div class="d"><span data-en>Headline matched to the ad's angle</span><span data-es>Título alineado con el ángulo del anuncio</span></div></div>
+      <div class="lp-node hot"><div class="h"><span data-en>Step 3 · changed</span><span data-es>Paso 3 · modificado</span></div><div class="t"><span data-en>Multi-step form</span><span data-es>Formulario por pasos</span></div><div class="d"><span data-en>Fewer steps, plus reward steps along the way</span><span data-es>Menos pasos, más pasos de recompensa en el camino</span></div></div>
+      <div class="lp-node"><div class="h"><span data-en>Result</span><span data-es>Resultado</span></div><div class="t">Lead</div><div class="d"><span data-en>Sold to the buyer = revenue</span><span data-es>Vendido al comprador = revenue</span></div></div>
+    </div>
+
+    <div class="cro">
+      <div>
+        <div class="mono" style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:14px"><span data-en>Landing page conversion rate · % of visitors who became a lead</span><span data-es>Conversión de la landing · % de visitantes que se volvieron lead</span></div>
+        <div class="funnel">
+          <div class="fbar"><span><span data-en>before</span><span data-es>antes</span></span><span class="track"><span class="fill" style="width:61%;background:var(--line-2)"></span></span><span class="v">9–10%</span></div>
+          <div class="fbar"><span>Nov–Apr</span><span class="track"><span class="fill" style="width:94%;background:var(--profit)"></span></span><span class="v">14.61%</span></div>
+          <div class="fbar"><span>May–Dec</span><span class="track"><span class="fill" style="width:100%;background:var(--profit)"></span></span><span class="v">15.47%</span></div>
+        </div>
+        <p class="proof-line"><span data-en>Verified in LeadPier: <b>145,537 leads / 995,972 visitors</b> and <b>260,493 / 1,683,436</b>. The lift held while spend kept scaling.</span><span data-es>Verificado en LeadPier: <b>145,537 leads / 995,972 visitantes</b> y <b>260,493 / 1,683,436</b>. La mejora se sostuvo mientras el gasto seguía escalando.</span></p>
+        <div class="margin-jump"><span class="a">15–20%</span><span>→</span><span class="b">30–35%</span><span class="l"><span data-en>profit margin with the same ad spend, because every dollar of traffic now produced ~50% more leads</span><span data-es>de margen de profit con el mismo gasto, porque cada dólar de tráfico ahora generaba ~50% más leads</span></span></div>
+      </div>
+      <div class="changes">
+        <div class="h mono" style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);padding-bottom:12px"><span data-en>What changed on the page</span><span data-es>Qué cambió en la página</span></div>
+        <div><span>01</span><span><span data-en><b>Cut dead form steps.</b> A/B tested every question and removed the ones that cost completions without adding value.</span><span data-es><b>Eliminamos pasos que no aportaban.</b> A/B test de cada pregunta del formulario y afuera las que hacían abandonar sin sumar valor.</span></span></div>
+        <div><span>02</span><span><span data-en><b>Added reward steps.</b> Screens between questions that show the savings being unlocked and testimonials from people like the visitor.</span><span data-es><b>Agregamos pasos de recompensa.</b> Pantallas entre preguntas que muestran el ahorro que se va desbloqueando y testimonios de gente parecida al visitante.</span></span></div>
+        <div><span>03</span><span><span data-en><b>Tested headlines.</b> The page's first line matches the angle of the ad that brought the click.</span><span data-es><b>Testeamos títulos.</b> La primera línea de la página coincide con el ángulo del anuncio que trajo el clic.</span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INCIDENT -->
+<section class="term" id="incident">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag"><span data-en>06 · Incident report</span><span data-es>06 · Incident report</span></div>
+      <div>
+        <h2><span data-en>September: 90% of spend gone overnight.</span><span data-es>Septiembre: 90% del gasto perdido de un día para otro.</span></h2>
+        <p><span data-en>Every buyer at scale gets hit eventually. What matters is how fast you diagnose it and whether it happens twice.</span><span data-es>A todo buyer que escala le pasa tarde o temprano. Lo que importa es qué tan rápido lo diagnosticás y si te vuelve a pasar.</span></p>
+      </div>
+    </div>
+    <div class="incident">
+      <div class="inc-head"><span class="sev">● SEV-1 · <span data-en>resolved</span><span data-es>resuelto</span></span><span>Meta · Auto Insurance · Sep 2025 · <span data-en>3 ad accounts lost</span><span data-es>3 cuentas perdidas</span></span></div>
+      <div class="inc-body">
+        <div class="impact">
+          <div class="h"><span data-en>Impact</span><span data-es>Impacto</span></div>
+          <div class="drop">
+            <div class="row"><span><span data-en>before</span><span data-es>antes</span></span><span class="b" style="background:var(--profit);width:100%"></span><span class="v">$50K</span></div>
+            <div class="row"><span><span data-en>day after</span><span data-es>día siguiente</span></span><span class="b" style="background:var(--loss);width:10%"></span><span class="v">$5K</span></div>
+            <div class="row"><span><span data-en>+2 weeks</span><span data-es>+2 semanas</span></span><span class="b" style="background:var(--profit);width:50%;opacity:.8"></span><span class="v">$25K</span></div>
+          </div>
+          <div style="display:flex;gap:28px;flex-wrap:wrap">
+            <div><div class="huge">−90%</div><div class="h" style="margin-top:6px"><span data-en>daily spend</span><span data-es>gasto diario</span></div></div>
+            <div><div class="huge2">~2 wk</div><div class="h" style="margin-top:6px"><span data-en>back to $25K/day</span><span data-es>de vuelta a $25K/día</span></div></div>
+          </div>
+          <p class="note" style="margin-top:0"><span data-en>Held at $25K/day from mid-September to year-end.</span><span data-es>Sostenido en $25K/día desde mediados de septiembre hasta fin de año.</span></p>
+        </div>
+        <div class="pm">
+          <div class="pm-step"><div class="k"><span data-en>Root cause</span><span data-es>Causa raíz</span></div><div><p><span data-en><b>1.</b> Meta moved all insurance ads into the <code>Special Ad Category</code> (financial products &amp; services). Most live ads were rejected within a day.</span><span data-es><b>1.</b> Meta pasó todos los anuncios de seguros a la <code>Special Ad Category</code> (productos y servicios financieros). La mayoría de los ads activos se rechazaron en un día.</span></p><p><span data-en><b>2.</b> Parody characters of well-known figures were read by Andromeda as impersonation.</span><span data-es><b>2.</b> Andromeda leyó a los personajes de parodia de figuras conocidas como suplantación de identidad.</span></p></div></div>
+          <div class="pm-step"><div class="k"><span data-en>Response</span><span data-es>Respuesta</span></div><div><p><span data-en>Audited every creative against the new policy. Non-compliant ones were edited: a parody disclaimer, no impersonation. Clean ones were relaunched <b>by Post ID</b> in new accounts.</span><span data-es>Auditamos cada creativo contra la política nueva. Los que no cumplían se editaron: disclaimer de parodia, sin suplantación. Los limpios se relanzaron <b>por Post ID</b> en cuentas nuevas.</span></p></div></div>
+          <div class="pm-step"><div class="k"><span data-en>Why Post ID</span><span data-es>Por qué Post ID</span></div><div><p><span data-en>It keeps the likes, comments and shares, and Andromeda keeps the creative's visual signal for finding look-alike people. On the same pixel, learning in the new account started from warm, not zero.</span><span data-es>Conserva likes, comentarios y compartidos, y Andromeda mantiene la señal visual del creativo para buscar gente parecida. Con el mismo pixel, el aprendizaje en la cuenta nueva arrancó en caliente, no de cero.</span></p></div></div>
+          <div class="pm-step"><div class="k"><span data-en>Prevention</span><span data-es>Prevención</span></div><div><p><span data-en>A pre-upload compliance checklist on every creative, and spend distributed across separate Business Managers so one enforcement action can't take everything down.</span><span data-es>Un checklist de compliance antes de subir cada creativo, y el gasto repartido en Business Managers separados para que una sola sanción no tire todo.</span></p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LAUNCHER -->
+<section class="launcher" id="launcher">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag"><span data-en>07 · Tooling</span><span data-es>07 · Herramientas</span></div>
+      <div>
+        <h2><span data-en>I built the tool that launched the tests.</span><span data-es>Construí la herramienta que lanzaba los tests.</span></h2>
+        <p><span data-en>Uploading 30 creatives a day across 5–6 accounts was eating 2–3 hours per buyer, time that belonged to analysis. So I built an internal app that turns a creative in the library into a live, correctly named ad.</span><span data-es>Subir 30 creativos por día en 5–6 cuentas se comía 2–3 horas por buyer, tiempo que tendría que ir al análisis. Así que construí una app interna que convierte un creativo de la librería en un anuncio publicado y bien nombrado.</span></p>
+      </div>
+    </div>
+    <div class="flow">
+      <div class="node"><div class="h">01 · <span data-en>Source</span><span data-es>Origen</span></div><div class="t">monday.com</div><div class="d"><span data-en>Creative library: vertical, angle, copy, headlines.</span><span data-es>Librería de creativos: vertical, ángulo, copies, headlines.</span></div></div>
+      <div class="node"><div class="h">02 · <span data-en>Template</span><span data-es>Plantilla</span></div><div class="t"><span data-en>Per-vertical presets</span><span data-es>Presets por vertical</span></div><div class="d"><span data-en>Each buyer's own defaults, plus automatic naming convention.</span><span data-es>Los defaults de cada buyer, más la convención de nombres automática.</span></div></div>
+      <div class="node"><div class="h">03 · <span data-en>Engine</span><span data-es>Motor</span></div><div class="t">n8n + Supabase</div><div class="d"><span data-en>Auth, request signing, credential isolation.</span><span data-es>Auth, firma de peticiones, aislamiento de credenciales.</span></div></div>
+      <div class="node"><div class="h">04 · API</div><div class="t">Meta · TikTok</div><div class="d"><span data-en>Campaigns, ad sets, ads created programmatically.</span><span data-es>Campañas, ad sets y anuncios creados por código.</span></div></div>
+      <div class="node"><div class="h">05 · <span data-en>Output</span><span data-es>Salida</span></div><div class="t"><span data-en>Live tests in N accounts</span><span data-es>Tests activos en N cuentas</span></div><div class="d"><span data-en>1 ad set per creative, or N creatives per ad set.</span><span data-es>1 ad set por creativo, o N creativos por ad set.</span></div></div>
+    </div>
+    <div class="lgrid">
+      <div>
+        <div class="h mono" style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#A99BFF"><span data-en>Configured automatically</span><span data-es>Se configura solo</span></div>
+        <div class="config"><span>naming</span><span>copy</span><span>headline</span><span>UTMs</span><span>FB page</span><span>geo</span><span>pixel + event</span><span>dayparting</span><span>placements</span><span>ad set split</span></div>
+        <div class="timebar">
+          <div class="row"><span><span data-en>before</span><span data-es>antes</span></span><span class="b" style="background:var(--line-2);width:100%"></span><span><span data-en>2–3 h/day</span><span data-es>2–3 h/día</span></span></div>
+          <div class="row"><span><span data-en>after</span><span data-es>después</span></span><span class="b" style="background:linear-gradient(90deg,var(--sky),var(--violet));width:20%"></span><span><span data-en>30 min</span><span data-es>30 min</span></span></div>
+        </div>
+        <div class="lnum">
+          <div><div class="n">11</div><div class="l"><span data-en>media buyers using it</span><span data-es>media buyers usándola</span></div></div>
+          <div><div class="n">70+ h</div><div class="l"><span data-en>saved per week (11 × ~7 h)</span><span data-es>ahorradas por semana (11 × ~7 h)</span></div></div>
+        </div>
+        <p class="stackline"><span data-en>Built with</span><span data-es>Hecha con</span> <b>Lovable</b> (frontend) · <b>Supabase</b> (backend, auth) · <b>n8n</b> · <b>Meta &amp; TikTok APIs</b> · <b>Claude Code</b></p>
+        <p class="stackline"><span data-en>Security-layered so a leaked user credential never exposes the company's API access.</span><span data-es>Con capas de seguridad para que una credencial filtrada nunca exponga el acceso de la empresa a la API.</span></p>
+      </div>
+      <button class="appshot" type="button" data-lb="app" data-cap-en="The Creative Launcher's run screen. Workflow ID blurred." data-cap-es="Pantalla de ejecución del Creative Launcher. Workflow ID difuminado."><img src="{{app}}" alt="Creative Launcher interface"></button>
+    </div>
+  </div>
+</section>
+
+<!-- DTC -->
+<section class="term" id="dtc">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag"><span data-en>08 · Transfer</span><span data-es>08 · Transferencia</span></div>
+      <div>
+        <h2><span data-en>Why this works for a DTC brand.</span><span data-es>Por qué esto funciona para una marca DTC.</span></h2>
+        <p><span data-en>Lead gen and DTC scale the same way: a creative system, clean signals and a hard line on unit economics. Lead gen just gives you less room for error.</span><span data-es>Lead gen y DTC escalan igual: un sistema creativo, señales limpias y una línea dura en los unit economics. Lead gen solo te deja menos margen de error.</span></p>
+      </div>
+    </div>
+    <div class="transfer">
+      <div class="tr"><div class="from"><b>lead gen</b> → DTC</div><div class="h"><span data-en>Profitable from the first dollar</span><span data-es>Rentable desde el primer dólar</span></div><p><span data-en>No LTV or repeat purchase to hide a bad CAC. I'm used to reading contribution margin day by day.</span><span data-es>Sin LTV ni recompra que escondan un mal CAC. Estoy acostumbrado a leer el margen de contribución día a día.</span></p></div>
+      <div class="tr"><div class="from"><b>creative</b> → DTC</div><div class="h"><span data-en>A creative engine, not a lucky ad</span><span data-es>Un motor creativo, no un anuncio con suerte</span></div><p><span data-en>Hypothesis-led concepts, avatar iteration and a 15–20% hit rate. That's the same machine a DTC brand needs for UGC and statics.</span><span data-es>Conceptos guiados por hipótesis, iteración de avatares y 15–20% de hit rate. Es la misma máquina que necesita una marca DTC para UGC y estáticos.</span></p></div>
+      <div class="tr"><div class="from"><b>tracking</b> → DTC</div><div class="h"><span data-en>Third-party truth over platform ROAS</span><span data-es>La verdad de terceros por encima del ROAS de la plataforma</span></div><p><span data-en>Decisions made on RedTrack and reconciled payouts, not on in-platform attribution. It's the same instinct as reading Shopify and a post-purchase survey over Meta's number.</span><span data-es>Decisiones tomadas con RedTrack y payouts reconciliados, no con la atribución de la plataforma. Es el mismo instinto que leer Shopify y una encuesta post-compra en vez del número de Meta.</span></p></div>
+      <div class="tr"><div class="from"><b>scale</b> → DTC</div><div class="h"><span data-en>$50K days without breaking the account</span><span data-es>Días de $50K sin romper la cuenta</span></div><p><span data-en>Budget pacing, horizontal duplication, bid caps, multi-BM risk management and policy recovery, all at a spend level most DTC brands are still growing into.</span><span data-es>Ritmo de presupuesto, duplicación horizontal, bid caps, gestión de riesgo con varios BMs y recuperación ante políticas, todo a un nivel de gasto al que la mayoría de las marcas DTC todavía está llegando.</span></p></div>
+    </div>
+    <p class="cheet"><span data-en>Alongside LeadsIcon, as a freelance buyer at <b>CheetAds</b> (Jan 2024 – present), I've run Meta and Google for <b>20 B2B and DTC clients</b>, mostly info-products and real estate: <b>5× lower CPA</b> through creative iteration, and one account taken from <b>$20K to $50K revenue in a month</b>.</span><span data-es>En paralelo a LeadsIcon, como buyer freelance en <b>CheetAds</b> (ene 2024 – hoy), manejé Meta y Google para <b>20 clientes B2B y DTC</b>, sobre todo infoproductos y real estate: <b>CPA 5× más bajo</b> con iteración creativa, y una cuenta que pasó de <b>$20K a $50K de revenue en un mes</b>.</span></p>
+  </div>
+</section>
+
+<!-- END -->
+<footer class="end" id="contact">
+  <div class="wrap end-main">
+    <div>
+      <div class="eyebrow"><span data-en>Open to Media Buyer &amp; Creative Strategist roles · Remote</span><span data-es>Abierto a roles de Media Buyer y Creative Strategist · Remoto</span></div>
+      <h2 style="margin-top:14px"><span data-en>Let's scale <em>yours</em> next.</span><span data-es>Escalemos <em>la tuya</em>.</span></h2>
+      <div class="ctas"><button class="btn btn-primary" type="button" data-cv>↓ <span data-en>Download CV</span><span data-es>Descargar CV</span></button></div>
+    </div>
+    <div class="contact">
+      <div class="crow"><div><span class="k">Email</span><span class="val" id="emailVal">maurozdkads@gmail.com</span></div><div style="display:flex;gap:8px"><button class="mini" type="button" id="copyEmail"><span data-en>Copy</span><span data-es>Copiar</span></button><a class="mini" href="mailto:maurozdkads@gmail.com"><span data-en>Open mail</span><span data-es>Abrir mail</span></a></div></div>
+      <div class="crow"><div><span class="k">LinkedIn</span><span class="val">linkedin.com/in/maurozdk</span></div><a class="mini" href="https://www.linkedin.com/in/maurozdk" target="_blank" rel="noopener">↗ <span data-en>Open</span><span data-es>Abrir</span></a></div>
+    </div>
+  </div>
+  <div class="wrap"><div class="foot"><span data-en>All figures from RedTrack, LeadPier, Meta Ads Manager and TikTok Ads Manager screenshots. Creative and editor names blurred.</span><span data-es>Todas las cifras salen de capturas de RedTrack, LeadPier, Meta Ads Manager y TikTok Ads Manager. Nombres de creativos y editores difuminados.</span> · © 2026 Mauro Zahradnicek</div></div>
+</footer>
+
+<dialog id="lb" aria-label="Evidence">
+  <div class="dlg-bar"><span id="lbCap"></span><button class="mini" type="button" data-close><span data-en>Close</span><span data-es>Cerrar</span> ✕</button></div>
+  <div class="dlg-body"><img id="lbImg" alt=""></div>
+</dialog>
+
+<dialog id="cvDlg" aria-label="CV">
+  <div class="dlg-bar"><span>CV · Mauro Zahradnicek · 2026</span><span style="display:flex;gap:8px"><a class="mini" id="cvPdf" href="#" target="_blank" rel="noopener" hidden>PDF ↗</a><button class="mini" type="button" data-close><span data-en>Close</span><span data-es>Cerrar</span> ✕</button></span></div>
+  <div class="dlg-body"><div class="cv">
+    <h3>Mauro Nicolás Zahradnicek</h3>
+    <div class="r">Senior Performance Media Buyer · Paid Acquisition Specialist · Worldwide</div>
+    <div class="r">linkedin.com/in/maurozdk · maurozdkads@gmail.com</div>
+    <h4>Summary</h4>
+    <p>Senior Performance Media Buyer focused on making paid acquisition profitable at scale. Managed $5.5M+ in ad spend across Meta and TikTok, generated $6.4M+ in revenue, and ran up to 12 ad accounts at once in Auto Insurance, Debt Relief and ACA. Built an n8n + Meta API automation system that cut 70+ hours a week of operational overhead.</p>
+    <h4>Experience</h4>
+    <div class="job">LeadsIcon · Senior Media Buyer <span>Sep 2024 – Jun 2026 · Remote</span></div>
+    <ul>
+      <li>Turned $5.5M in ad spend into $6.4M in revenue (~$900K net profit), scaling $10K–$50K/day across Auto Insurance, Debt Relief and ACA.</li>
+      <li>Managed 12 simultaneous ad accounts, scaling to $250K+ weekly spend at peak.</li>
+      <li>Drove a 50% improvement in landing page CVR with the CRO team.</li>
+      <li>Built an n8n + Meta API + RedTrack automation system that eliminated 70+ hours/week of manual work.</li>
+      <li>Designed a 4-phase paid acquisition framework, from creative hypothesis to scaling SOP.</li>
+    </ul>
+    <div class="job">CheetAds · Freelance Media Buyer <span>Jan 2024 – present · Worldwide</span></div>
+    <ul>
+      <li>Planned and ran performance campaigns for 20 B2B and DTC clients (info-products, real estate) on Meta and Google.</li>
+      <li>Reduced CPA 5× through creative iteration: scripted statics, UGC and carousels.</li>
+      <li>Full-funnel A/B testing took one account from $20K to $50K revenue in a month.</li>
+    </ul>
+    <h4>Skills</h4>
+    <p>Meta Ads · TikTok Ads · Snapchat Ads · Google Ads · Creative testing frameworks · CRO · Conversion API · GTM · RedTrack · Ringba · Looker Studio · n8n · Python · API integrations</p>
+    <h4>Education</h4>
+    <p>Advanced Tools to Scale Meta Ads (Arash Shahmorad, 2025) · Smart Marketer, Train My Traffic Person (2024) · Foundr Facebook Ads (2024) · AI Automations &amp; Agents: Python, n8n, Claude Code (2025)</p>
+    <h4>Languages</h4>
+    <p>Spanish (native) · English (advanced)</p>
+  </div></div>
+</dialog>
+
+</div>
+
+<script>
+(function(){
+  // Set CV_URL to a hosted PDF (e.g. "cv.pdf" next to this page, or a Google Drive link) to make "Download CV" open it directly.
+  var CV_URL = "";
+
+  var app = document.getElementById('app');
+  var lang = 'en';
+  try{ var s = localStorage.getItem('mz-lang'); if(s) lang = s; }catch(e){}
+  if(location.hash === '#es') lang = 'es';
+
+  var STAGES = {
+    en:[
+      {big:"Everything about the client and the market before one idea: products, results so far, avatars, competitor creatives and formats.",items:["Map competitors' ads, angles and landers","Define avatars and what each already believes","Cross research with the client's own answers","Decide where the energy goes first"]},
+      {big:"Research becomes one core hypothesis, and the plan is built on it.",items:["Creative concepts and angles per avatar","Scripts and briefs tied to the hypothesis","Workflow: who produces what, by when","KPIs and the threshold that proves it"]},
+      {big:"Launch clean and let the data come in without touching it early.",items:["Testing campaign per avatar","Creatives launched through the Creative Launcher","Naming convention so every result is readable","Kill rule set before launch, not after"]},
+      {big:"Close the loop: what won, what lost, and why. Then the next hypothesis is ready before the week starts.",items:["Read the business → creative → post-click layers","Graduate winners to per-avatar scaling","Brief variants of near-misses","Plan next week's tests in advance"]}
+    ],
+    es:[
+      {big:"Todo sobre el cliente y el mercado antes de la primera idea: productos, resultados hasta ahora, avatares, creativos y formatos de la competencia.",items:["Mapear los anuncios, ángulos y landings de la competencia","Definir los avatares y qué cree cada uno","Cruzar el research con las respuestas del cliente","Decidir dónde va la energía primero"]},
+      {big:"El research se convierte en una hipótesis central, y el plan se construye sobre ella.",items:["Conceptos creativos y ángulos por avatar","Guiones y briefs atados a la hipótesis","Workflow: quién produce qué y para cuándo","KPIs y el umbral que la valida"]},
+      {big:"Lanzar limpio y dejar que entren los datos sin tocar antes de tiempo.",items:["Campaña de testing por avatar","Creativos lanzados con el Creative Launcher","Convención de nombres para que cada resultado se pueda leer","La regla de kill se define antes de lanzar, no después"]},
+      {big:"Cerrar el loop: qué ganó, qué perdió y por qué. Y la siguiente hipótesis está lista antes de que arranque la semana.",items:["Leer las capas de negocio → creativo → post-click","Pasar los ganadores a escala por avatar","Pedir variantes de los que casi ganan","Planificar los tests de la semana siguiente"]}
+    ]
+  };
+  var cur = 0;
+  function renderStage(){
+    var d = STAGES[lang][cur];
+    document.getElementById('stageBody').innerHTML = '<p class="big">'+d.big+'</p><ul>'+d.items.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>';
+    document.querySelectorAll('.stage').forEach(function(b,i){b.setAttribute('aria-selected', i===cur?'true':'false')});
+  }
+  document.querySelectorAll('.stage').forEach(function(b){b.addEventListener('click',function(){cur=+b.dataset.i;renderStage();})});
+
+  // dots: 50 creatives, 9 winners (~18%)
+  var dots = document.querySelector('.dots'), h='';
+  for(var i=0;i<50;i++) h += '<i'+([3,9,14,21,26,31,38,42,47].indexOf(i)>-1?' class="w"':'')+'></i>';
+  dots.innerHTML = h;
+
+  // chart
+  function chart(){
+    var svg = document.getElementById('chart');
+    var W=1000,H=380,L=64,R=20,T=24,B=58;
+    var months = ['Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    if(lang==='es') months = ['nov','dic','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    var n = months.length, max=60;
+    var x = function(m){return L + (m/n)*(W-L-R)}, y=function(v){return T + (1-v/max)*(H-T-B)};
+    // step series in month units (start at 0 = Nov 1 2024)
+    var steps = [[0,1.5],[1,5],[2,20],[4,25],[7,53],[10,5],[10.5,25],[14,25]];
+    var s = '';
+    // grid
+    [0,10,20,30,40,50,60].forEach(function(v){
+      s += '<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="var(--line)" stroke-width="1"/>';
+      s += '<text x="'+(L-10)+'" y="'+(y(v)+4)+'" fill="var(--dim)" font-family="JetBrains Mono,monospace" font-size="12" text-anchor="end">$'+v+'K</text>';
+    });
+    months.forEach(function(m,i){
+      s += '<text x="'+(x(i)+(x(1)-x(0))/2)+'" y="'+(H-B+22)+'" fill="var(--dim)" font-family="JetBrains Mono,monospace" font-size="12" text-anchor="middle">'+m+'</text>';
+    });
+    s += '<text x="'+(x(0))+'" y="'+(H-10)+'" fill="var(--faint)" font-family="JetBrains Mono,monospace" font-size="11">2024</text>';
+    s += '<text x="'+(x(2))+'" y="'+(H-10)+'" fill="var(--faint)" font-family="JetBrains Mono,monospace" font-size="11">2025</text>';
+    s += '<line x1="'+x(2)+'" x2="'+x(2)+'" y1="'+(H-B)+'" y2="'+(H-B+30)+'" stroke="var(--line-2)"/>';
+    // build path
+    var d = 'M'+x(0)+' '+y(steps[0][1]), area='M'+x(0)+' '+y(0)+' L'+x(0)+' '+y(steps[0][1]);
+    for(var k=1;k<steps.length;k++){
+      d += ' H'+x(steps[k][0])+' V'+y(steps[k][1]);
+      area += ' H'+x(steps[k][0])+' V'+y(steps[k][1]);
+    }
+    area += ' V'+y(0)+' Z';
+    s += '<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3FD68F" stop-opacity=".28"/><stop offset="1" stop-color="#3FD68F" stop-opacity="0"/></linearGradient></defs>';
+    s += '<path d="'+area+'" fill="url(#ga)"/>';
+    s += '<path d="'+d+'" fill="none" stroke="var(--profit)" stroke-width="2.5"/>';
+    // drop segment red
+    s += '<path d="M'+x(10)+' '+y(53)+' V'+y(5)+' H'+x(10.5)+' V'+y(25)+'" fill="none" stroke="var(--loss)" stroke-width="2.5"/>';
+    s += '<text x="'+(x(10.5)+8)+'" y="'+(y(5)-6)+'" fill="var(--loss)" font-family="JetBrains Mono,monospace" font-size="12">−90%</text>';
+    // TikTok start band
+    s += '<rect x="'+x(2)+'" y="'+(T)+'" width="'+(x(14)-x(2))+'" height="6" fill="var(--line-2)"/>';
+    s += '<text x="'+(x(2)+4)+'" y="'+(T+20)+'" fill="var(--dim)" font-family="JetBrains Mono,monospace" font-size="11">'+(lang==='es'?'Meta + TikTok desde acá':'Meta + TikTok from here')+'</text>';
+    // evidence markers
+    var ev = [
+      {m:8.8, v:53.18, t:(lang==='es'?'25/07 · $53,179 en un día':'25 Jul · $53,179 in one day'), a:'end'},
+      {m:5.1, v:19.3, t:(lang==='es'?'~4/4 · TikTok $19.3K/día (7d)':'~4 Apr · TikTok $19.3K/day (7d)'), a:'start'}
+    ];
+    ev.forEach(function(e){
+      s += '<circle cx="'+x(e.m)+'" cy="'+y(e.v)+'" r="6" fill="var(--amber)" stroke="var(--ink)" stroke-width="2"/>';
+      var tx = e.a==='end'? x(e.m)-12 : x(e.m)+12;
+      s += '<text x="'+tx+'" y="'+(y(e.v)+(e.a==='end'?-10:4))+'" fill="var(--amber)" font-family="JetBrains Mono,monospace" font-size="12" text-anchor="'+e.a+'">'+e.t+'</text>';
+    });
+    svg.innerHTML = s;
+  }
+
+  function setLang(l){
+    lang = l; app.setAttribute('data-lang', l); document.documentElement.lang = l;
+    document.getElementById('lang-en').setAttribute('aria-pressed', l==='en');
+    document.getElementById('lang-es').setAttribute('aria-pressed', l==='es');
+    try{ localStorage.setItem('mz-lang', l); }catch(e){}
+    renderStage(); chart();
+  }
+  document.getElementById('lang-en').addEventListener('click',function(){setLang('en')});
+  document.getElementById('lang-es').addEventListener('click',function(){setLang('es')});
+
+  // lightbox
+  var lb = document.getElementById('lb');
+  document.querySelectorAll('[data-lb]').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.getElementById("lbImg").src = b.querySelector("img").src;
+      document.getElementById('lbImg').alt = b.querySelector('img').alt;
+      document.getElementById('lbCap').textContent = b.getAttribute('data-cap-'+lang);
+      lb.showModal();
+    });
+  });
+  document.querySelectorAll('dialog').forEach(function(dl){
+    dl.addEventListener('click',function(e){ if(e.target===dl || e.target.closest('[data-close]')) dl.close(); });
+  });
+
+  // CV
+  var cvDlg = document.getElementById('cvDlg');
+  if(CV_URL){ var p=document.getElementById('cvPdf'); p.href=CV_URL; p.hidden=false; }
+  document.querySelectorAll('[data-cv]').forEach(function(b){
+    b.addEventListener('click',function(){ if(CV_URL){ window.open(CV_URL,'_blank','noopener'); } else { cvDlg.showModal(); } });
+  });
+
+  // copy email
+  function toast(t){var d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove()},1800)}
+  document.getElementById('copyEmail').addEventListener('click',function(){
+    var v='maurozdkads@gmail.com';
+    var ok=function(){toast(lang==='es'?'Email copiado':'Email copied')};
+    try{ navigator.clipboard.writeText(v).then(ok,function(){sel()}); }catch(e){ sel(); }
+    function sel(){var r=document.createRange();r.selectNodeContents(document.getElementById('emailVal'));var s=getSelection();s.removeAllRanges();s.addRange(r);toast(lang==='es'?'Seleccionado: copiá con Ctrl+C':'Selected: press Ctrl+C')}
+  });
+
+  setLang(lang);
+})();
+</script>
